@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -23,10 +22,10 @@ export default function CreateTask() {
         setDate(e.target.value);
         break;
       case "completed":
-        setCompleted(e.target.value);
+        setCompleted(e.target.checked);
         break;
       case "important":
-        setImportant(e.target.value);
+        setImportant(e.target.checked);
         break;
       default:
         break;
@@ -48,11 +47,15 @@ export default function CreateTask() {
       const res = await axios.post("/api/tasks", task);
 
       if (res.data.error) {
-        toast.error(res.data.error);
-      }
-
-      if (res.data.ok) {
+        toast.error("Error creating task.");
+      } else {
         toast.success("Task created successfully.");
+
+        setTitle("");
+        setDescription("");
+        setDate("");
+        setCompleted(false);
+        setImportant(false);
       }
     } catch (error) {
       toast.error("Something went wrong.");
@@ -61,25 +64,25 @@ export default function CreateTask() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <div>
         <h1>Create Task</h1>
         <div className="input-control">
           <label htmlFor="title">Title</label>
           <input
+            onChange={handleChange("title")}
             type="text"
             id="title"
             value={title}
             name="title"
-            onChange={handleChange("title")}
             placeholder="Title"
           />
         </div>
         <div className="input-control">
           <label htmlFor="description">Description</label>
           <textarea
-            value={description}
             onChange={handleChange("description")}
+            value={description}
             name="description"
             id="description"
             rows={4}
@@ -89,8 +92,8 @@ export default function CreateTask() {
         <div className="input-control">
           <label htmlFor="date">Date</label>
           <input
-            value={date}
             onChange={handleChange("date")}
+            value={date}
             type="date"
             name="date"
             id="date"
@@ -99,9 +102,9 @@ export default function CreateTask() {
         <div className="input-control">
           <label htmlFor="completed">Toggle Complete</label>
           <input
+            onChange={handleChange("completed")}
             checked={completed}
             value={completed.toString()}
-            onChange={handleChange("completed")}
             type="checkbox"
             name="completed"
             id="completed"
@@ -110,9 +113,9 @@ export default function CreateTask() {
         <div className="input-control toggler">
           <label htmlFor="important">Toggle Important</label>
           <input
+            onChange={handleChange("important")}
             checked={important}
             value={important.toString()}
-            onChange={handleChange("important")}
             type="checkbox"
             name="important"
             id="important"
@@ -120,10 +123,10 @@ export default function CreateTask() {
         </div>
       </div>
       <div className="submit-btn">
-        <button type="submit">
+        <button onClick={handleSubmit}>
           <span>Submit</span>
         </button>
       </div>
-    </form>
+    </div>
   );
 }

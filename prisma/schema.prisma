@@ -25,4 +25,16 @@ model Task {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   userId String 
+  user User @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id String @id @default(cuid()) @map("_id") 
+  nickname String
+  email String @unique
+  password String
+  task Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

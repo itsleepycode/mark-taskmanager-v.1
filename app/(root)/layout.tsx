@@ -1,8 +1,8 @@
 import Sidebar from "@/components/fragment/sidebar/page";
+import { authOption } from "@/libs/AuthOption";
 import ContextProvider from "@/providers/ContextProvider";
 import GlobalStyleProvider from "@/providers/GlobalStyleProvider";
 import { getServerSession } from "next-auth";
-import { useSession } from "next-auth/react";
 import React from "react";
 
 interface ProtectedRootLayoutProps {
@@ -12,6 +12,7 @@ interface ProtectedRootLayoutProps {
 export default async function ProtectedRoot({
   children,
 }: ProtectedRootLayoutProps) {
+  await getServerSession(authOption);
   return (
     <div className="w-full h-screen">
       <ContextProvider>

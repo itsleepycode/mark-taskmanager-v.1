@@ -1,14 +1,40 @@
 "use client";
 import Input from "@/components/atom/Input";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const login = () => {};
+  const router = useRouter();
+
+  const login = async () => {
+    if (!EMAIL_REGEX.test(email)) {
+      toast.error("Email tidak valid");
+    }
+
+    setLoading(true);
+    const login = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (login?.ok) {
+      toast.success("Login Berhasil");
+      router.push("/");
+    } else if (login?.error) {
+      toast.error(login?.error);
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div className="space-y-5 flex flex-col items-center text-colorIcons2">
@@ -16,14 +42,12 @@ export default function LoginForm() {
         label="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        disabled={loading}
         type="email"
       />
       <Input
         label="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        disabled={loading}
         type="password"
       />
       <button

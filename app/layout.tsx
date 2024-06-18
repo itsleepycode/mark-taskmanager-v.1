@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NextAuthSessionProvider from "@/providers/NextAuthSessionProvider";
+import ToastProvider from "@/providers/ToastProvider";
+import { getServerSession } from "next-auth";
+import { authOption } from "@/libs/AuthOption";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +18,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await getServerSession(authOption);
   return (
     <NextAuthSessionProvider>
       <html lang="en">
@@ -27,7 +31,11 @@ export default async function RootLayout({
             referrerPolicy="no-referrer"
           />
         </head>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.className}>
+          {" "}
+          <ToastProvider />
+          {children}
+        </body>
       </html>
     </NextAuthSessionProvider>
   );

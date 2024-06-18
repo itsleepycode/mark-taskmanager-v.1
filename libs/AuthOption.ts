@@ -1,7 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-
+import bcrypt from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
+import prismadb from "./prismadb";
+import toast from "react-hot-toast";
 
 export const authOption: NextAuthOptions = {
   session: {
@@ -9,19 +11,37 @@ export const authOption: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
+      name: "credentials",
       credentials: {
-        email: {
-          label: "Email",
-          type: "email",
-          placeholder: "Example@example.com",
-        },
-        password: { label: "Password", type: "password" },
+        email: { type: "text", label: "Email" },
+        password: { type: "password", label: "Password" },
       },
 
       async authorize(credentials) {
-        const user = { id: "1", name: "root", email: "rootaja@gmail.com" };
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Credentials tidak ditemukan");
+        }
+
+        const user = await prismadb.user.findUnique({
+          where: {
+            email: credentials.email,
+          },
+        });
+
+        if (!user || !user.id || !user.password) {
+          throw new Error("User tidak ditemukan");
+        }
 
         if (user) {
+          const decode = await bcrypt.compare(
+            credentials?.password,
+            user.password
+          );
+
+          if (!decode) {
+            toast.error("Password salah");
+          }
+
           return user;
         } else {
           return null;
@@ -35,16 +55,17 @@ export const authOption: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+      if (!user) {
+        return token;
       }
-      return token;
+
+      return { ...token, id: user.id };
     },
     async session({ session, token }) {
-      if (token) {
-        session.user = session.user;
-      }
-      return session;
+      return {
+        ...session,
+        id: token.id,
+      };
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

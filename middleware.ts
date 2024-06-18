@@ -7,11 +7,17 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req });
   const isAuthenticated = !!token;
 
-  if (!isAuthenticated) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  const loginPage = "/login";
+  const homePage = "/";
+  const url = req.nextUrl.pathname;
+
+  if (isAuthenticated && url === loginPage) {
+    return NextResponse.redirect(new URL(homePage, req.url));
   }
 
-  return token;
+  if (!isAuthenticated && url !== loginPage) {
+    return NextResponse.redirect(new URL(loginPage, req.url));
+  }
 }
 
 export const config = {
