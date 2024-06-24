@@ -48,24 +48,23 @@ export const authOption: NextAuthOptions = {
         }
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
-    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (!user) {
-        return token;
+      if (user) {
+        token.id = user.id;
+        token.nickname = user.nickname;
       }
-
-      return { ...token, id: user.id };
+      return token;
     },
     async session({ session, token }) {
-      return {
-        ...session,
-        id: token.id,
-      };
+      if (token) {
+        session.user.id = typeof token.id === "string" ? token.id : "";
+        session.user.nickname =
+          typeof token.nickname === "string" ? token.nickname : "";
+        session.user.email = typeof token.email === "string" ? token.email : "";
+      }
+      return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

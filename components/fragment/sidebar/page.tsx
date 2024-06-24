@@ -7,9 +7,10 @@ import menu from "@/utils/menu";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { arrowLeft, bars, logout } from "@/utils/Icons";
 
 export default function Sidebar() {
-  const { theme } = useGlobalState();
+  const { theme, user, collapsed, collapsedMenu } = useGlobalState();
   const Router = useRouter();
   const pathname = usePathname();
   const handleClick = (link: string) => {
@@ -17,15 +18,17 @@ export default function Sidebar() {
   };
 
   return (
-    <SidebarStyled theme={theme}>
+    <SidebarStyled theme={theme} collapsed={collapsed}>
+      <button className="toggle-nav" onClick={collapsedMenu}>
+        {collapsed ? bars : arrowLeft}
+      </button>
       <div className="profile">
         <div className="profile-overlay"></div>
         <div className="image">
           <Image width={70} height={70} src="/Profile1.jpeg" alt="profile" />
         </div>
         <h1>
-          <span>Sleepy</span>
-          <span>Code</span>
+          <span>{user ? user.nickname : "Guest"}</span>
         </h1>
       </div>
       <ul className="nav-items">
@@ -34,6 +37,7 @@ export default function Sidebar() {
 
           return (
             <li
+              key={item.id}
               className={`nav-item ${pathname === link ? "active" : ""}`}
               onClick={() => {
                 handleClick(link);
@@ -45,17 +49,17 @@ export default function Sidebar() {
           );
         })}
       </ul>
-      <button
-        onClick={() => signOut()}
-        className="border-2 border-borderColor2 px-12 py-2 rounded-lg font-semibold hover:bg-colorBg3 transition-all"
-      >
-        SignOut
-      </button>
+      <div className="sign-out relative m-6 ">
+        <button className="sign-out" onClick={() => signOut()}>
+          {logout}
+          SignOut
+        </button>
+      </div>
     </SidebarStyled>
   );
 }
 
-const SidebarStyled = styled.nav`
+const SidebarStyled = styled.nav<{ collapsed: boolean }>`
   position: relative;
   width: ${(props) => props.theme.sidebarWidth};
   background-color: ${(props) => props.theme.colorBg2};
@@ -67,6 +71,36 @@ const SidebarStyled = styled.nav`
   justify-content: space-between;
 
   color: ${(props) => props.theme.colorGrey3};
+
+  @media screen and (max-width: 768px) {
+    position: fixed;
+    height: calc(100vh - 2rem);
+    z-index: 100;
+
+    transition: all 0.3s cubic-bezier(0.53, 0.21, 0, 1);
+    transform: ${(props) =>
+      props.collapsed ? "translateX(-107%)" : "translateX(0)"};
+
+    .toggle-nav {
+      display: block !important;
+    }
+  }
+
+  .toggle-nav {
+    display: none;
+    padding: 0.8rem 0.9rem;
+    position: absolute;
+    right: -67px;
+    top: 1.7rem;
+
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+
+    background-color: ${(props) => props.theme.colorBg2};
+    border-right: 2px solid ${(props) => props.theme.borderColor2};
+    border-top: 2px solid ${(props) => props.theme.borderColor2};
+    border-bottom: 2px solid ${(props) => props.theme.borderColor2};
+  }
 
   .profile {
     margin: 1.5rem;
@@ -103,6 +137,7 @@ const SidebarStyled = styled.nav`
       display: flex;
       flex-direction: column;
       line-height: 1.4rem;
+      word-break: break-word;
     }
 
     .image,
@@ -215,5 +250,34 @@ const SidebarStyled = styled.nav`
 
   > button {
     margin: 1.5rem;
+  }
+
+  .sign-out {
+    padding: 0.4rem 1.1rem;
+    border-radius: 0.8rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: ${(props) => props.theme.colorGrey2};
+    z-index: 5;
+    cursor: pointer;
+
+    transition: all 0.2s ease-in-out;
+
+    i {
+      margin-right: 1rem;
+      color: ${(props) => props.theme.colorGrey2};
+      font-size: 1.5rem;
+
+      transition: all 0.2s ease-in-out;
+    }
+
+    &:hover {
+      color: ${(props) => props.theme.colorGrey0};
+
+      i {
+        color: ${(props) => props.theme.colorGrey0};
+      }
+    }
   }
 `;

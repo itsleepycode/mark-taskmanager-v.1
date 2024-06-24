@@ -62,36 +62,45 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const task = await prismadb.task.findMany({
+    const tasks = await prismadb.task.findMany({
       where: {
         userId,
       },
     });
 
-    return NextResponse.json({ task }, { status: 200 });
+    return NextResponse.json({ tasks }, { status: 200 });
   } catch (error) {
     console.log("ERROR GETTING TASKS", error);
     return NextResponse.json({ error: "Error getting tasks" }, { status: 500 });
   }
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest) {
   try {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const userId = token?.sub;
+    const { isCompleted, id } = await req.json();
+
+    if (!userId) {
+      console.log("Unauthorized: No user ID found");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const task = await prismadb.task.update({
+      where: {
+        id,
+      },
+      data: {
+        isCompleted,
+      },
+    });
+
+    console.log(task, "Task Updated");
+    return NextResponse.json({ task }, { status: 200 });
   } catch (error) {
     console.log("ERROR UPDATING TASKS", error);
     return NextResponse.json(
       { error: "Error updating tasks" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(req: Request) {
-  try {
-  } catch (error) {
-    console.log("ERROR DELETING TASKS", error);
-    return NextResponse.json(
-      { error: "Error deleting tasks" },
       { status: 500 }
     );
   }

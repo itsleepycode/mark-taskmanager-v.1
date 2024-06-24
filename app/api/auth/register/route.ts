@@ -1,8 +1,8 @@
 import prismadb from "@/libs/prismadb";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const user = await req.json();
     const { nickname, email, password } = user;

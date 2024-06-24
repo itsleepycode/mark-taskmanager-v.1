@@ -1,7 +1,10 @@
 "use client";
+import { useGlobalState } from "@/components/atom/context/GlobalContextProvider";
+import { plus } from "@/utils/Icons";
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import styled from "styled-components";
 
 export default function CreateTask() {
   const [title, setTitle] = useState("");
@@ -9,6 +12,8 @@ export default function CreateTask() {
   const [date, setDate] = useState("");
   const [completed, setCompleted] = useState(false);
   const [important, setImportant] = useState(false);
+
+  const { theme, allTask, closeModal } = useGlobalState();
 
   const handleChange = (name: string) => (e: any) => {
     switch (name) {
@@ -51,6 +56,10 @@ export default function CreateTask() {
       } else {
         toast.success("Task created successfully.");
 
+        allTask();
+
+        closeModal();
+
         setTitle("");
         setDescription("");
         setDate("");
@@ -59,12 +68,12 @@ export default function CreateTask() {
       }
     } catch (error) {
       toast.error("Something went wrong.");
-      console.log(error);
+      // console.log(error);
     }
   };
 
   return (
-    <div>
+    <CreateTaskStyled theme={theme}>
       <div>
         <h1>Create Task</h1>
         <div className="input-control">
@@ -75,7 +84,7 @@ export default function CreateTask() {
             id="title"
             value={title}
             name="title"
-            placeholder="Title"
+            placeholder="Set title here..."
           />
         </div>
         <div className="input-control">
@@ -99,7 +108,7 @@ export default function CreateTask() {
             id="date"
           />
         </div>
-        <div className="input-control">
+        <div className="input-control toggler">
           <label htmlFor="completed">Toggle Complete</label>
           <input
             onChange={handleChange("completed")}
@@ -122,11 +131,84 @@ export default function CreateTask() {
           />
         </div>
       </div>
-      <div className="submit-btn">
-        <button onClick={handleSubmit}>
-          <span>Submit</span>
+      <div className="flex justify-end">
+        <button className="submit-btn" onClick={handleSubmit}>
+          {plus}
+          <span>Create Task</span>
         </button>
       </div>
-    </div>
+    </CreateTaskStyled>
   );
 }
+
+const CreateTaskStyled = styled.div`
+  h1 {
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    font-weight: 600;
+  }
+
+  color: ${(props) => props.theme.colorGrey1};
+
+  .input-control {
+    position: relative;
+    margin: 1.6rem 0;
+    font-weight: 500;
+
+    label {
+      margin-bottom: 0.5rem;
+      display: inline-block;
+      font-size: clamp(0.9rem, 5vw, 1.2rem);
+
+      span {
+        color: ${(props) => props.theme.colorGrey3};
+      }
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 1rem;
+
+      resize: none;
+      background-color: ${(props) => props.theme.colorGreyDark};
+      color: ${(props) => props.theme.colorGrey2};
+
+      border-radius: 0.5rem;
+    }
+  }
+
+  .submit-btn {
+    position: relative;
+    padding: 0.8rem 2rem;
+    border-radius: 0.8rem;
+    font-weight: 500;
+    font-size: 1.2rem;
+    background: rgb(9, 95, 170);
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+
+    i {
+      margin-right: 0.7rem;
+    }
+
+    &:hover {
+      background-color: rgb(60, 152, 233);
+    }
+  }
+
+  .toggler {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    cursor: pointer;
+
+    label {
+      flex: 1;
+    }
+
+    input {
+      width: initial;
+    }
+  }
+`;

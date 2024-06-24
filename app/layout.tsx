@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import NextAuthSessionProvider from "@/providers/NextAuthSessionProvider";
 import ToastProvider from "@/providers/ToastProvider";
 import { getServerSession } from "next-auth";
 import { authOption } from "@/libs/AuthOption";
+import NextTopLoader from "nextjs-toploader";
 
-const inter = Inter({ subsets: ["latin"] });
+const nunito = Nunito({
+  weight: ["400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Mark-TaskManager-v.1",
@@ -31,8 +35,13 @@ export default async function RootLayout({
             referrerPolicy="no-referrer"
           />
         </head>
-        <body className={inter.className}>
-          {" "}
+        <body className={nunito.className}>
+          <NextTopLoader
+            height={2}
+            color="#27AE60"
+            easing="cubic-bezier(0.53,0.21,0,1)"
+            showSpinner={false}
+          />
           <ToastProvider />
           {children}
         </body>
