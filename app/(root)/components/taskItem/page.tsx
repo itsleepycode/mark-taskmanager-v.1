@@ -19,12 +19,18 @@ interface Props {
 }
 
 export default function TaskItem({ task }: Props) {
-  const { theme, deleteTask, updateTask } = useGlobalState();
+  const { theme, deleteTask, updateTask, setTaskToEdit, openModal } =
+    useGlobalState();
   const { id, title, description, date, isCompleted, isImportant } = task;
 
   const handleStatusToggle = () => {
     const updatedTask = { ...task, isCompleted: !isCompleted };
     updateTask(updatedTask);
+  };
+
+  const handleEdit = () => {
+    setTaskToEdit(task);
+    openModal("editTask", true);
   };
 
   return (
@@ -42,7 +48,9 @@ export default function TaskItem({ task }: Props) {
             Incomplete
           </button>
         )}
-        <button className="edit">{edit}</button>
+        <button className="edit" onClick={handleEdit}>
+          {edit}
+        </button>
         <button className="delete" onClick={() => deleteTask(task.id)}>
           {trash}
         </button>

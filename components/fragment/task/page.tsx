@@ -1,5 +1,6 @@
 "use client";
 import CreateTask from "@/app/(root)/components/modals/CreateTask";
+import EditTask from "@/app/(root)/components/modals/EditTask";
 import Modal from "@/app/(root)/components/modals/Modal";
 import TaskItem from "@/app/(root)/components/taskItem/page";
 import { useGlobalState } from "@/components/atom/context/GlobalContextProvider";
@@ -22,11 +23,11 @@ interface Props {
 }
 
 export default function Task({ title, tasks }: Props) {
-  const { theme, isLoading, openModal, modal } = useGlobalState();
+  const { theme, isLoading, openModal, modal, isEditing } = useGlobalState();
 
   return (
     <TaskStyled theme={theme}>
-      {modal && <Modal content={<CreateTask />} />}
+      {modal && <Modal content={isEditing ? <EditTask /> : <CreateTask />} />}
       <h1>{title}</h1>
       {!isLoading ? (
         <div className="tasks grid">

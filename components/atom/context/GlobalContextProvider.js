@@ -13,6 +13,8 @@ export default function GlobalContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [modal, setModal] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const theme = themes[selectedTheme];
 
@@ -90,12 +92,14 @@ export default function GlobalContextProvider({ children }) {
     }
   };
 
-  const openModal = () => {
-    setModal(true);
+  const openModal = (content, editMode = false) => {
+    setModal(content);
+    setIsEditing(editMode);
   };
 
   const closeModal = () => {
     setModal(false);
+    setIsEditing(false);
   };
 
   const collapsedMenu = () => {
@@ -142,6 +146,12 @@ export default function GlobalContextProvider({ children }) {
         modal,
         openModal,
         closeModal,
+
+        taskToEdit,
+        setTaskToEdit,
+
+        isEditing,
+        setIsEditing,
       }}
     >
       <GlobalUpdateContext.Provider value={{}}>

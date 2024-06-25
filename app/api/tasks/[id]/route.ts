@@ -35,3 +35,48 @@ export async function DELETE(
     return NextResponse.json({ error: "Error deleting task" }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const userId = token?.sub;
+    const { id } = params;
+    const { title, description, date, isCompleted, isImportant } =
+      await req.json();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const updateTask = await prismadb.task.update({
+      where: {
+        id,
+        userId,
+      },
+
+      data: {
+        title,
+        description,
+        date,
+        isCompleted,
+        isImportant,
+      },
+    });
+
+    if (updateTask) {
+      return NextResponse.json({
+        message: "Task updated successfully",
+        task: updateTask,
+      });
+    } else {
+      console.log("Task not found");
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+  } catch (error) {
+    console.log("ERROR UPDATING TASKS", error);
+    return NextResponse.json({ error: "Error updating task" }, { status: 500 });
+  }
+}
